@@ -1,0 +1,46 @@
+Architecture Explanation
+This project is designed as an event-driven supply chain data ingestion and analytics pipeline using n8n and PostgreSQL.
+1. Trigger Layer – Email-Based Data Ingestion
+The workflow is initiated using a Gmail Trigger that continuously polls the inbox for incoming emails with a specific subject line (“Daily sales”).
+When a matching email arrives, the workflow automatically downloads the attached files.
+Purpose:
+Eliminates manual data collection and ensures timely ingestion of daily supply chain data.
+2. Data Extraction Layer – File Parsing
+The workflow processes two separate attachments in parallel:
+Aggregate-level data file
+Parsed using an Extract from File node to extract structured fields such as:
+Order ID
+Customer ID
+Order placement date
+OTIF (On-Time-In-Full) metrics
+Order line-level data file
+Parsed separately to extract detailed transactional data including:
+Product-level quantities
+Delivery dates (agreed vs actual)
+On-Time, In-Full, and OTIF indicators
+Purpose:
+Separating aggregate and line-level data enables granular analysis while preserving summarized KPIs.
+3. Transformation & Standardization Layer
+Before storage, the workflow:
+Converts date formats into database-compatible timestamps
+Maps extracted fields explicitly to database columns
+Maintains consistent data types across both datasets
+Purpose:
+Prepares raw operational data for reliable downstream analytics without manual cleaning.
+4. Storage Layer – PostgreSQL Data Warehouse
+The processed data is inserted into two PostgreSQL fact tables:
+fact_aggregate
+Stores order-level KPIs such as OTIF, on-time delivery, and fulfillment status.
+fact_order_line
+Stores detailed order-line transactions for deeper operational analysis.
+Purpose:
+Creates a structured analytical data layer suitable for dashboards, KPI tracking, and AI-based analysis.
+5. Analytics Readiness
+Once ingested into PostgreSQL, the data becomes analytics-ready and can be used for:
+Supply chain performance monitoring
+OTIF analysis
+Bottleneck identification
+AI-driven insight generation (forecasting, anomaly detection, trend analysis)
+
+Architecture Flow Summary (One-Line)
+Gmail Trigger → File Extraction → Data Transformation → PostgreSQL Storage → Analytics & AI Insights
